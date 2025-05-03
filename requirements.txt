@@ -9,3 +9,4 @@ pandas
 tesseract
 pytest-html
 requests
+reportlab
