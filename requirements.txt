@@ -1,3 +1,11 @@
 Flask==3.0.3
 pytest==8.3.3
 pytest-mock==3.14.0
+pymupdf
+pytesseract
+scikit-learn
+openai
+pandas
+tesseract
+pytest-html
+requests
