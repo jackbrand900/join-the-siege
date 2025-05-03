@@ -23,15 +23,7 @@ jobs:
           pip install -r requirements.txt
           pip install pytest
 
-      - name: Run tests and log accuracy
+      - name: Run tests and calculate accuracy
         run: |
           source .venv/bin/activate
-          pytest -v -s tests/ > pytest_output.txt
-          grep -i "accuracy" pytest_output.txt > metrics.txt || echo "No accuracy info found."
-          cat metrics.txt
-
-      - name: Upload accuracy summary
-        uses: actions/upload-artifact@v2
-        with:
-          name: classification-accuracy
-          path: metrics.txt
+          pytest -v -s tests/
