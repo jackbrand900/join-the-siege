@@ -31,7 +31,7 @@ jobs:
           cat metrics.txt
 
       - name: Upload accuracy summary
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: classification-accuracy
           path: metrics.txt
