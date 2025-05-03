@@ -2,6 +2,17 @@ from werkzeug.datastructures import FileStorage
 from src.extractor import extract_text
 import tempfile
 import os
+import joblib
+
+# Load trained classifier (e.g., TF-IDF + LogisticRegression)
+MODEL_PATH = "model/document_classifier.pkl"
+
+try:
+    pretrained_model = joblib.load(MODEL_PATH)
+except Exception as e:
+    print(f"Warning: Could not load model at {MODEL_PATH}. Model-based classification may not work.\n{e}")
+    pretrained_model = None
+
 
 # -----------------------
 # 1. Filename-based classification
@@ -104,7 +115,9 @@ def classify_file(file: FileStorage, method: str = "filename", model=None) -> st
         os.remove(tmp_path)
 
     if method == "model":
-        return classify_by_model(text, model=model)
+        if pretrained_model is None:
+            raise RuntimeError("Model not loaded. Ensure 'model/document_classifier.pkl' exists.")
+        return classify_by_model(text, model=pretrained_model)
 
     if method == "llm":
         return classify_with_llm(text)
