@@ -10,19 +10,21 @@ def allowed_file(filename):
 
 @app.route('/classify_file', methods=['POST'])
 def classify_file_route():
-
     if 'file' not in request.files:
         return jsonify({"error": "No file part in the request"}), 400
 
     file = request.files['file']
-    if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
+    method = request.form.get('method', 'filename')
 
-    if not allowed_file(file.filename):
-        return jsonify({"error": f"File type not allowed"}), 400
+    allowed_methods = {"filename", "model", "llm"}
+    if method not in allowed_methods:
+        return jsonify({"error": f"Unsupported method: {method}"}), 400
 
-    file_class = classify_file(file)
-    return jsonify({"file_class": file_class}), 200
+    try:
+        result = classify_file(file, method=method)
+        return jsonify({"file_class": result}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == '__main__':
