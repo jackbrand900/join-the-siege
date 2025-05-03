@@ -14,6 +14,8 @@ def classify_file_route():
         return jsonify({"error": "No file part in the request"}), 400
 
     file = request.files['file']
+    if file.filename == '': # handle empty file
+        return jsonify({"error": "No selected file"}), 400
     method = request.form.get('method', 'filename')
 
     allowed_methods = {"filename", "model", "llm"}

@@ -6,14 +6,41 @@ import os
 # -----------------------
 # 1. Filename-based classification
 # -----------------------
-def classify_by_filename(filename: str) -> str:
+def classify_by_filename(filename: str, content: str = "") -> str:
+    """
+    Classifies a file based on its filename and optionally its content.
+    Returns one of: 'drivers_license', 'bank_statement', 'invoice', or 'unknown'
+    """
+
     name = filename.lower()
-    if "driver" in name and ("license" in name or "licence" in name):
-        return "drivers_license"
-    if "bank_statement" in name:
-        return "bank_statement"
-    if "invoice" in name:
-        return "invoice"
+    text = content.lower() if content else ""
+
+    # Keywords per class
+    keywords = {
+        "drivers_license": [
+            ["driver", "license"],
+            ["driver", "licence"],
+            ["dl", "id"],
+        ],
+        "bank_statement": [
+            ["bank", "statement"],
+            ["account", "summary"],
+            ["account", "balance"],
+        ],
+        "invoice": [
+            ["invoice"],
+            ["amount", "due"],
+            ["invoice", "number"],
+            ["total", "payable"]
+        ]
+    }
+
+    # Check for matches in filename and content
+    for label, patterns in keywords.items():
+        for pattern in patterns:
+            if all(word in name for word in pattern) or all(word in text for word in pattern):
+                return label
+
     return "unknown"
 
 
