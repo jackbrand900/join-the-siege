@@ -5,8 +5,10 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -17,18 +19,19 @@ jobs:
         run: |
           python -m venv .venv
           source .venv/bin/activate
+          pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest
 
-      - name: Run tests and log metrics
+      - name: Run tests and log accuracy
         run: |
           source .venv/bin/activate
           pytest -v -s tests/ > pytest_output.txt
-          grep "Accuracy" pytest_output.txt > metrics.txt
+          grep -i "accuracy" pytest_output.txt > metrics.txt || echo "No accuracy info found."
           cat metrics.txt
 
       - name: Upload accuracy summary
-        uses: actions/upload-artifact@v3.1.3
+        uses: actions/upload-artifact@v3
         with:
           name: classification-accuracy
           path: metrics.txt
