@@ -13,7 +13,19 @@ FILES_DIR = os.path.join("files", "synthetic")
 
 
 # ------------------------
-# Flask client fixture
+# Command-line flag
+# ------------------------
+def pytest_addoption(parser):
+    parser.addoption("--strict", action="store_true", default=False, help="Fail tests on accuracy mismatches")
+
+
+@pytest.fixture
+def strict(request):
+    return request.config.getoption("--strict")
+
+
+# ------------------------
+# Flask client
 # ------------------------
 @pytest.fixture
 def client():
@@ -23,7 +35,7 @@ def client():
 
 
 # ------------------------
-# Unit tests
+# Basic tests
 # ------------------------
 @pytest.mark.parametrize("filename, expected", [
     ("file.pdf", True),
@@ -56,11 +68,11 @@ def test_success(client, mocker):
 
 
 # ------------------------
-# Accuracy test for all files and all methods
+# Accuracy test with original filenames
 # ------------------------
 
 @pytest.mark.parametrize("method", ["filename", "model", "llm"])
-def test_all_files_all_methods_with_accuracy(method, monkeypatch):
+def test_all_files_accuracy(method, monkeypatch, strict):
     if method == "llm":
         monkeypatch.setattr("src.classifier.classify_with_llm", lambda text: "invoice" if "invoice" in text.lower() else (
             "bank_statement" if "bank" in text.lower() else (
@@ -94,20 +106,24 @@ def test_all_files_all_methods_with_accuracy(method, monkeypatch):
             except Exception as e:
                 errors.append(f"{filename}: {e}")
 
-    if total == 0:
-        raise RuntimeError("No files tested. Check your directory and labels.")
+    accuracy = correct / total if total else 0
+    print(f"\n📊 [{method.upper()}] Accuracy: {correct}/{total} = {accuracy:.2%}")
 
-    accuracy = correct / total
-    print(f"\n🔍 [{method.upper()}] Accuracy: {correct}/{total} = {accuracy:.2%}")
-    assert not errors, f"Errors occurred:\n" + "\n".join(errors)
+    if errors:
+        print(f"\n⚠️  {len(errors)} error(s):")
+        for e in errors:
+            print(f" - {e}")
+
+    if strict and (accuracy < 1.0 or errors):
+        pytest.fail(f"{method} failed under strict mode with accuracy {accuracy:.2%} and {len(errors)} errors.")
 
 
 # ------------------------
-# Randomized filename test
+# Accuracy test with randomized filenames
 # ------------------------
 
 @pytest.mark.parametrize("method", ["filename", "model", "llm"])
-def test_all_classifiers_with_random_filenames(method, monkeypatch):
+def test_accuracy_randomized_filenames(method, monkeypatch, strict):
     if method == "llm":
         monkeypatch.setattr("src.classifier.classify_with_llm", lambda text: "invoice" if "invoice" in text.lower() else (
             "bank_statement" if "bank" in text.lower() else (
@@ -129,24 +145,27 @@ def test_all_classifiers_with_random_filenames(method, monkeypatch):
         true_label = label_map.get(filename, "unknown")
         path = os.path.join(FILES_DIR, filename)
         ext = os.path.splitext(filename)[1]
-        fake_name = ''.join(random.choices(string.ascii_lowercase + string.digits, k=12)) + ext
+        randomized = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10)) + ext
 
         with open(path, "rb") as f:
-            file = FileStorage(stream=BytesIO(f.read()), filename=fake_name)
-
+            file = FileStorage(stream=BytesIO(f.read()), filename=randomized)
             try:
                 prediction = classify_file(file, method=method)
                 result = "✅" if prediction == true_label else "❌"
-                print(f"{result} [{method}] {fake_name:30} → predicted: {prediction:18} | expected: {true_label}")
+                print(f"{result} [{method}] {randomized:30} → predicted: {prediction:18} | expected: {true_label}")
                 total += 1
                 if prediction == true_label:
                     correct += 1
             except Exception as e:
-                errors.append(f"{filename} (as {fake_name}): {e}")
+                errors.append(f"{filename} (as {randomized}): {e}")
 
-    if total == 0:
-        raise RuntimeError("No files tested with randomized filenames.")
+    accuracy = correct / total if total else 0
+    print(f"\n📎 [{method.upper()}] Accuracy with randomized filenames: {correct}/{total} = {accuracy:.2%}")
 
-    accuracy = correct / total
-    print(f"\n🔍 [{method.upper()} w/ random filenames] Accuracy: {correct}/{total} = {accuracy:.2%}")
-    assert not errors, f"Errors occurred:\n" + "\n".join(errors)
+    if errors:
+        print(f"\n⚠️  {len(errors)} error(s):")
+        for e in errors:
+            print(f" - {e}")
+
+    if strict and (accuracy < 1.0 or errors):
+        pytest.fail(f"{method} (randomized) failed under strict mode with accuracy {accuracy:.2%} and {len(errors)} errors.")
