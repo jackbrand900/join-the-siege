@@ -3,6 +3,7 @@ from src.extractor import extract_text
 import tempfile
 import os
 import joblib
+import requests
 
 # Load trained classifier (e.g., TF-IDF + LogisticRegression)
 MODEL_PATH = "model/document_classifier.pkl"
@@ -68,30 +69,17 @@ def classify_by_model(text: str, model=None) -> str:
 # 3. LLM-based classification (OpenAI example)
 # -----------------------
 def classify_with_llm(text: str) -> str:
-    import openai
+    API_URL = "https://api-inference.huggingface.co/models/TinyLlama/TinyLlama-1.1B-Chat-v1.0"
 
     prompt = f"""
-You are a document classifier. Categorize the document as one of the following:
-- invoice
-- bank_statement
-- drivers_license
-- unknown
+        Classify the following document:
+        {text[:1000]}
 
-Document:
-{text[:3000]}
+        Choose one: invoice, bank_statement, drivers_license, unknown.
+    """
 
-Respond with only the label.
-"""
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "You are a document classification assistant."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0
-    )
-
-    return response['choices'][0]['message']['content'].strip().lower()
+    response = requests.post(API_URL, headers=headers, json={"inputs": prompt})
+    return response.json()[0]["generated_text"].strip().lower()
 
 
 # -----------------------
