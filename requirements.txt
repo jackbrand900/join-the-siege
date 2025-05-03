@@ -10,3 +10,4 @@ tesseract
 pytest-html
 requests
 reportlab
+pdf2image
