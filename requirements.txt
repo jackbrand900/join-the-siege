@@ -7,3 +7,4 @@ scikit-learn
 openai
 pandas
 tesseract
+pytest-html

@@ -22,8 +22,13 @@ jobs:
           pip install -r requirements.txt
           pip install pytest pytest-mock
 
-      - name: Run tests
+      - name: Run pytest and generate HTML report
         run: |
-          source .venv/bin/activate
-          pytest -v -s tests/
+          pytest --html=report.html --self-contained-html tests/
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v3
+        with:
+          name: html-report
+          path: report.html
 
