@@ -1,0 +1,12 @@
+{
+    "fields": [
+      { "label": "Account Holder", "key": "name" },
+      { "label": "Account Number", "key": "account_number" },
+      { "label": "Statement Date", "key": "date" },
+      { "label": "Ending Balance", "key": "amount" },
+      { "label": "Branch Code", "key": "branch" },
+      { "label": "Currency", "key": "currency" }
+    ],
+    "layout": "Document Type: BANK STATEMENT\nAccount Holder: {name}\nAccount Number: {account_number}\nStatement Date: {date}\nEnding Balance: {amount}\nBranch Code: {branch}\nCurrency: {currency}"
+  }
+  

@@ -1,0 +1,13 @@
+{
+    "fields": [
+      { "label": "Name", "key": "name" },
+      { "label": "License Number", "key": "license_number" },
+      { "label": "Date of Birth", "key": "dob" },
+      { "label": "Expiration Date", "key": "date" },
+      { "label": "Issue Date", "key": "issue_date" },
+      { "label": "Address", "key": "address" },
+      { "label": "Class", "key": "license_class" }
+    ],
+    "layout": "Document Type: DRIVERS LICENSE\nName: {name}\nLicense Number: {license_number}\nDate of Birth: {dob}\nExpiration Date: {date}\nIssue Date: {issue_date}\nAddress: {address}\nClass: {license_class}"
+  }
+  
