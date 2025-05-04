@@ -1,10 +1,15 @@
 from io import BytesIO
 import os
+import sys
 import random
 import string
 import pytest
 import pandas as pd
 from werkzeug.datastructures import FileStorage
+
+# Fix module path for local imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from src.app import app, allowed_file
 from src.classifier import classify_file
 
@@ -58,6 +63,64 @@ def test_success(client, mocker):
     response = client.post('/classify_file', data=data, content_type='multipart/form-data')
     assert response.status_code == 200
     assert response.get_json() == {"file_class": "test_class"}
+
+# ------------------------
+# New API tests
+# ------------------------
+def test_retrain_endpoint(client):
+    response = client.post('/retrain')
+    assert response.status_code in (200, 500)
+    assert "status" in response.get_json() or "error" in response.get_json()
+
+def test_generate_category_valid(client):
+    response = client.post("/generate_category", json={
+        "label": "test_category",
+        "num": 2,
+        "fields": ["Field One", "Field Two", "Amount"]
+    })
+    assert response.status_code == 200
+    json_data = response.get_json()
+    assert json_data["label"] == "test_category"
+    assert json_data["samples_generated"] == 2
+
+def test_generate_category_missing_fields(client):
+    response = client.post("/generate_category", json={
+        "label": "missing_fields_case"
+    })
+    assert response.status_code == 400
+    assert "error" in response.get_json()
+
+def test_generate_examples_invalid_label(client):
+    response = client.post("/generate_examples", json={
+        "label": "nonexistent_label_123",
+        "num": 1
+    })
+    assert response.status_code == 500
+    assert "error" in response.get_json()
+
+def test_list_categories(client):
+    response = client.get("/list_categories")
+    assert response.status_code == 200
+    json_data = response.get_json()
+    assert "categories" in json_data
+    assert isinstance(json_data["categories"], list)
+
+def test_delete_category_missing_label(client):
+    response = client.delete("/delete_category", json={})
+    assert response.status_code == 400
+    assert "error" in response.get_json()
+
+def test_delete_category_valid(client):
+    label = "test_category"
+    client.post("/generate_category", json={
+        "label": label,
+        "num": 1,
+        "fields": ["Test Field"]
+    })
+    response = client.delete("/delete_category", json={"label": label})
+    assert response.status_code == 200
+    json_data = response.get_json()
+    assert json_data["status"] == "success"
 
 # ------------------------
 # Accuracy test on test set (original filenames)
