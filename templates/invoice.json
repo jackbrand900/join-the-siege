@@ -1,0 +1,33 @@
+{
+  "fields": [
+    {
+      "label": "Invoice Number",
+      "key": "invoice_number"
+    },
+    {
+      "label": "Date",
+      "key": "date"
+    },
+    {
+      "label": "Client Name",
+      "key": "name"
+    },
+    {
+      "label": "Amount Due",
+      "key": "amount"
+    },
+    {
+      "label": "Payment Terms",
+      "key": "terms"
+    },
+    {
+      "label": "PO Number",
+      "key": "po_number"
+    },
+    {
+      "label": "Due Date",
+      "key": "due_date"
+    }
+  ],
+  "layout": "Invoice Number: {invoice_number}\nDate: {date}\nClient Name: {name}\nAmount Due: {amount}\nPayment Terms: {terms}\nPO Number: {po_number}\nDue Date: {due_date}"
+}

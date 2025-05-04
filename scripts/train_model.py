@@ -1,26 +1,29 @@
 import os
 import sys
 import pandas as pd
+import joblib
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
-import joblib
 
 # Add src/ to path so we can import extract_text
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from src.extractor import extract_text
 
-# Load labeled data
-label_csv_path = os.path.join("files", "labels.csv")
-df = pd.read_csv(label_csv_path)
+TRAIN_CSV_PATH = os.path.join("files", "train_labels.csv")
+SYNTHETIC_DIR = os.path.join("files", "synthetic")
+MODEL_PATH = os.path.join("model", "document_classifier.pkl")
+
+# Load training labels
+df = pd.read_csv(TRAIN_CSV_PATH)
 
 texts = []
 labels = []
 
 for row in df.itertuples(index=False):
-    file_path = os.path.join("files", "synthetic", row.filename)
+    file_path = os.path.join(SYNTHETIC_DIR, row.filename)
     if not os.path.exists(file_path):
         print(f"Skipping {row.filename}: file not found.")
         continue
@@ -30,33 +33,37 @@ for row in df.itertuples(index=False):
         if not text.strip():
             print(f"Skipping {row.filename}: empty extracted text.")
             continue
-        texts.append(text)
+
+        # 👇 Combine filename and content for training
+        combined = f"{row.filename} {text}"
+        texts.append(combined)
         labels.append(row.label)
     except Exception as e:
         print(f"Skipping {row.filename}: {e}")
 
-# Stop if no data was successfully loaded
+# Stop if no usable data
 if not texts:
     raise RuntimeError("❌ No documents were successfully loaded. "
-                       "Check that Tesseract is installed for image OCR, and that your paths in files/labels.csv are correct.")
+                       "Check that Tesseract is installed for image OCR, and paths in train_labels.csv are correct.")
 
-# Split and train
-X_train, X_test, y_train, y_test = train_test_split(
+# Optional: internal train/val split (for local validation)
+X_train, X_val, y_train, y_val = train_test_split(
     texts, labels, test_size=0.2, stratify=labels, random_state=42
 )
 
+# Build and train pipeline
 model = Pipeline([
     ("tfidf", TfidfVectorizer(max_features=3000)),
     ("clf", LogisticRegression(max_iter=1000))
 ])
 
 model.fit(X_train, y_train)
-y_pred = model.predict(X_test)
+y_pred = model.predict(X_val)
 
-print("\n✅ Classification Report:\n")
-print(classification_report(y_test, y_pred))
+print("\n✅ Classification Report (validation on 20% of train set):\n")
+print(classification_report(y_val, y_pred))
 
-# Save model
+# Save trained model
 os.makedirs("model", exist_ok=True)
-joblib.dump(model, "model/document_classifier.pkl")
-print("\n✅ Model saved to model/document_classifier.pkl")
+joblib.dump(model, MODEL_PATH)
+print(f"\n✅ Model saved to {MODEL_PATH}")

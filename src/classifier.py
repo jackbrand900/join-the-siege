@@ -69,17 +69,20 @@ def classify_by_model(text: str, model=None) -> str:
 # 3. LLM-based classification (OpenAI example)
 # -----------------------
 def classify_with_llm(text: str) -> str:
-    API_URL = "https://api-inference.huggingface.co/models/TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+    try:
+        API_URL = "https://api-inference.huggingface.co/models/TinyLlama/TinyLlama-1.1B-Chat-v1.0"
 
-    prompt = f"""
-        Classify the following document:
-        {text[:1000]}
+        prompt = f"""
+            Classify the following document:
+            {text[:1000]}
 
-        Choose one: invoice, bank_statement, drivers_license, unknown.
-    """
+            Choose one: invoice, bank_statement, drivers_license, unknown.
+        """
 
-    response = requests.post(API_URL, headers=headers, json={"inputs": prompt})
-    return response.json()[0]["generated_text"].strip().lower()
+        response = requests.post(API_URL, headers={}, json={"inputs": prompt})
+        return response.json()[0]["generated_text"].strip().lower()
+    except Exception as e:
+        raise RuntimeError(f"LLM classification failed: {e}")
 
 
 # -----------------------

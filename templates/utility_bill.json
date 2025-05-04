@@ -1,0 +1,25 @@
+{
+  "fields": [
+    {
+      "label": "Account Number",
+      "key": "account_number"
+    },
+    {
+      "label": "Customer Name",
+      "key": "customer_name"
+    },
+    {
+      "label": "Billing Date",
+      "key": "billing_date"
+    },
+    {
+      "label": "Amount Due",
+      "key": "amount_due"
+    },
+    {
+      "label": "Service Address",
+      "key": "service_address"
+    }
+  ],
+  "layout": "Account Number: {account_number}\nCustomer Name: {customer_name}\nBilling Date: {billing_date}\nAmount Due: {amount_due}\nService Address: {service_address}"
+}
