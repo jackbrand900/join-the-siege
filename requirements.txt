@@ -10,3 +10,7 @@ tesseract
 pytest-html
 requests
 reportlab
+python-docx
+openpyxl
+PyPDF2
+Pillow
