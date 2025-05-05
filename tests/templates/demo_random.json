@@ -1,0 +1,17 @@
+{
+  "fields": [
+    {
+      "label": "Name",
+      "key": "name"
+    },
+    {
+      "label": "Account Number",
+      "key": "account_number"
+    },
+    {
+      "label": "Amount",
+      "key": "amount"
+    }
+  ],
+  "layout": "Name: {name}\nAccount Number: {account_number}\nAmount: {amount}"
+}

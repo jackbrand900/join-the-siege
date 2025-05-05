@@ -1,0 +1,13 @@
+{
+  "fields": [
+    {
+      "label": "Field One",
+      "key": "field_one"
+    },
+    {
+      "label": "Amount",
+      "key": "amount"
+    }
+  ],
+  "layout": "Field One: {field_one}\nAmount: {amount}"
+}
