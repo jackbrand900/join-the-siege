@@ -10,7 +10,7 @@ from werkzeug.datastructures import FileStorage
 from time import sleep
 
 # Flask app setup to serve React/Vite frontend
-app = Flask(__name__, static_folder="../frontend/dist", static_url_path="/")
+app = Flask(__name__, static_folder="../frontend/build", static_url_path="/")
 CORS(app)
 
 # Constants
