@@ -135,9 +135,7 @@ If time allowed, I would expand the system with:
 
 ## Final Thoughts
 
-This project revealed how nuanced document classification is when applied in real-world settings. From text extraction to scaling infrastructure, I enjoyed building a system that’s flexible, extensible, and production-aware.
-
-Thanks for the opportunity to work on this challenge. I would be excited to explore these ideas further as part of the team at Heron.
+I really enjoyed working on this task, and it made me think about all the complexities inherent in what on its face seemed to be a relatively simple problem. The more I dug into the possible use-cases and issues, the more ideas and approaches I came up with. I know that this is just scratching the surface of the work being done at Heron Data, so I’m excited about the possibility to work on such interesting projects if I’m fortunate enough to join the team at Heron. Thank you for the time taken to review my approach and I look forward to hearing from you!
 
 ---
 ## Overview
