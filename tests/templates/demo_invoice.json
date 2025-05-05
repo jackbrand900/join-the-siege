@@ -1,0 +1,21 @@
+{
+  "fields": [
+    {
+      "label": "Invoice Number",
+      "key": "invoice_number"
+    },
+    {
+      "label": "Date",
+      "key": "date"
+    },
+    {
+      "label": "Amount",
+      "key": "amount"
+    },
+    {
+      "label": "Client Name",
+      "key": "client_name"
+    }
+  ],
+  "layout": "Invoice Number: {invoice_number}\nDate: {date}\nAmount: {amount}\nClient Name: {client_name}"
+}
