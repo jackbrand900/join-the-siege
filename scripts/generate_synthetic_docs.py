@@ -1,207 +1,165 @@
+import argparse
 import os
 import json
 import random
-from docx import Document
-from openpyxl import Workbook
 import pandas as pd
-import subprocess
 from reportlab.lib.pagesizes import LETTER
 from reportlab.pdfgen import canvas
 from pdf2image import convert_from_path
-from PIL import Image, ImageFilter
-from sklearn.model_selection import train_test_split
-import subprocess
+from docx import Document
+from openpyxl import Workbook
+from faker import Faker
 
-TEMPLATE_DIR = "templates"
+# Constants for paths and defaults
 OUTPUT_DIR = "files/synthetic"
 LABELS_PATH = "files/labels.csv"
-TRAIN_LABELS_PATH = "files/train_labels.csv"
-TEST_LABELS_PATH = "files/test_labels.csv"
-ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'docx', 'xlsx'}
+TEMPLATE_DIR = "templates"
+DEFAULT_NUM = 10
+ALLOWED_EXTENSIONS = ["pdf", "jpg", "png", "docx", "xlsx"]
 
-os.makedirs(OUTPUT_DIR, exist_ok=True)
+# Initialize Faker
+fake = Faker()
 
-# -----------------------
-# 🧠 Field Value Generator
-# -----------------------
+# Generate realistic dummy values for various fields
 def fake_value(field):
     field = field.lower()
     if "name" in field:
-        return random.choice(["John Smith", "Jane Doe", "Chris Johnson", "Maria Garcia"])
-    elif "id" in field:
-        return str(random.randint(100000, 999999))
-    elif "date" in field:
-        return f"{random.randint(1,12):02d}/{random.randint(1,28):02d}/2024"
-    elif "amount" in field or "salary" in field or "total" in field:
-        return f"${round(random.uniform(1000, 5000), 2)}"
+        return fake.name()
+    elif "id" in field or "ssn" in field or "account" in field:
+        return str(random.randint(100000000, 999999999))
+    elif "email" in field:
+        return fake.email()
+    elif "phone" in field or "mobile" in field or "contact" in field:
+        return fake.phone_number()
+    elif "address" in field:
+        return fake.address().replace("\n", ", ")
+    elif "date" in field or "dob" in field:
+        return fake.date_between(start_date="-5y", end_date="today").strftime("%m/%d/%Y")
+    elif "amount" in field or "salary" in field or "total" in field or "payment" in field or "price" in field:
+        return f"${round(random.uniform(100, 10000), 2):,.2f}"
+    elif "city" in field:
+        return fake.city()
+    elif "state" in field:
+        return fake.state()
+    elif "country" in field:
+        return fake.country()
+    elif "zip" in field or "postal" in field:
+        return fake.postcode()
+    elif "company" in field or "employer" in field:
+        return fake.company()
+    elif "job" in field or "position" in field or "title" in field:
+        return fake.job()
+    elif "bank" in field:
+        return random.choice(["Chase", "Bank of America", "Wells Fargo", "Citibank", "HSBC"])
+    elif "currency" in field:
+        return random.choice(["USD", "EUR", "GBP", "JPY", "CAD"])
     else:
-        return str(random.randint(1000, 9999))
+        return random.choice([
+            str(random.randint(1000, 9999)),
+            fake.word().capitalize(),
+            fake.bothify(text='??##')
+        ])
 
-# -----------------------
-# 📄 PDF + JPG Generation
-# -----------------------
-def generate_pdf(content, path):
-    c = canvas.Canvas(path, pagesize=LETTER)
-    for i, line in enumerate(content.splitlines()):
+# Generate a PDF file with given content
+def generate_pdf(content: str, pdf_path: str):
+    c = canvas.Canvas(pdf_path, pagesize=LETTER)
+    for i, line in enumerate(content.strip().split("\n")):
         c.drawString(100, 750 - 15 * i, line)
     c.save()
 
-def convert_pdf_to_image(pdf_path, image_path, fmt="JPEG"):
-    images = convert_from_path(pdf_path)
-    if images:
-        img = images[0]
-        if random.random() < 0.4:
-            img = img.filter(ImageFilter.GaussianBlur(radius=random.uniform(0.5, 1.5)))
-        if random.random() < 0.3:
-            img = img.rotate(random.uniform(-2, 2), expand=True, fillcolor="white")
-        img.save(image_path, fmt, quality=random.randint(70, 95))
+# Convert the first page of a PDF to an image format (JPG or PNG)
+def generate_image_from_pdf(pdf_path, image_path, fmt):
+    pages = convert_from_path(pdf_path, first_page=1, last_page=1)
+    format_map = {
+        "jpg": "JPEG",
+        "jpeg": "JPEG",
+        "png": "PNG"
+    }
+    save_format = format_map.get(fmt.lower(), fmt.upper())
+    pages[0].save(image_path, save_format)
 
-def generate_docx(content, path):
+
+# Generate a DOCX file with given content
+def generate_docx(content: str, docx_path: str):
     doc = Document()
-    for line in content.strip().splitlines():
+    for line in content.strip().split("\n"):
         doc.add_paragraph(line)
-    doc.save(path)
+    doc.save(docx_path)
 
-
-def generate_xlsx(content, path):
+# Generate an XLSX file with given content
+def generate_xlsx(content: str, xlsx_path: str):
     wb = Workbook()
     ws = wb.active
-    for i, line in enumerate(content.strip().splitlines(), 1):
+    for i, line in enumerate(content.strip().split("\n"), 1):
         ws.cell(row=i, column=1, value=line)
-    wb.save(path)
+    wb.save(xlsx_path)
 
+# Construct document content from template fields
+def build_template(label: str, fields: list[str]) -> str:
+    lines = [f"Document Type: {label.upper()}"]
+    for field in fields:
+        value = fake_value(field)
+        lines.append(f"{field}: {value}")
+    return "\n".join(lines)
 
-def generate_docs(label, num_samples, test_size=0.2):
+# Generate documents based on an existing template
+def generate_docs(label: str, num: int):
     label = label.lower()
     template_path = os.path.join(TEMPLATE_DIR, f"{label}.json")
     if not os.path.exists(template_path):
-        raise FileNotFoundError(f"No template found for category '{label}'")
+        raise FileNotFoundError(f"No template found for label '{label}'")
 
     with open(template_path, "r") as f:
         template = json.load(f)
+        fields = [f["label"] for f in template["fields"]]
 
-    fields = template["fields"]
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    new_rows = []
 
-    rows = []
-
-    for i in range(num_samples):
-        # Randomly sample a subset of fields and shuffle their order
-        sampled_fields = random.sample(fields, k=random.randint(2, len(fields)))
-        random.shuffle(sampled_fields)
-
-        # Generate fake values for the sampled fields
-        field_map = {f["key"]: fake_value(f["label"]) for f in sampled_fields}
-
-        # Build content dynamically based on sampled fields
-        content_lines = [f"{f['label']}: {field_map[f['key']]}" for f in sampled_fields]
-        content = "\n".join(content_lines)
-
+    for i in range(num):
+        content = build_template(label, fields)
         base = f"{label}_synth_{i}"
+        chosen_ext = random.choice(ALLOWED_EXTENSIONS)
 
-        if "pdf" in ALLOWED_EXTENSIONS:
+        if chosen_ext == "pdf":
             pdf_path = os.path.join(OUTPUT_DIR, f"{base}.pdf")
             generate_pdf(content, pdf_path)
-            rows.append({"filename": f"{base}.pdf", "label": label})
+            new_rows.append({"filename": f"{base}.pdf", "label": label})
 
-            if "jpg" in ALLOWED_EXTENSIONS or "jpeg" in ALLOWED_EXTENSIONS:
-                jpg_path = os.path.join(OUTPUT_DIR, f"{base}.jpg")
-                convert_pdf_to_image(pdf_path, jpg_path, fmt="JPEG")
-                rows.append({"filename": f"{base}.jpg", "label": label})
+        elif chosen_ext in {"jpg", "png"}:
+            temp_pdf = os.path.join(OUTPUT_DIR, f"{base}_temp.pdf")
+            image_path = os.path.join(OUTPUT_DIR, f"{base}.{chosen_ext}")
+            generate_pdf(content, temp_pdf)
+            generate_image_from_pdf(temp_pdf, image_path, chosen_ext)
+            os.remove(temp_pdf)
+            new_rows.append({"filename": f"{base}.{chosen_ext}", "label": label})
 
-            if "png" in ALLOWED_EXTENSIONS:
-                png_path = os.path.join(OUTPUT_DIR, f"{base}.png")
-                convert_pdf_to_image(pdf_path, png_path, fmt="PNG")
-                rows.append({"filename": f"{base}.png", "label": label})
-
-        if "docx" in ALLOWED_EXTENSIONS:
+        elif chosen_ext == "docx":
             docx_path = os.path.join(OUTPUT_DIR, f"{base}.docx")
             generate_docx(content, docx_path)
-            rows.append({"filename": f"{base}.docx", "label": label})
+            new_rows.append({"filename": f"{base}.docx", "label": label})
 
-        if "xlsx" in ALLOWED_EXTENSIONS:
+        elif chosen_ext == "xlsx":
             xlsx_path = os.path.join(OUTPUT_DIR, f"{base}.xlsx")
             generate_xlsx(content, xlsx_path)
-            rows.append({"filename": f"{base}.xlsx", "label": label})
+            new_rows.append({"filename": f"{base}.xlsx", "label": label})
 
-    df = pd.DataFrame(rows)
-    train_df, test_df = train_test_split(df, test_size=test_size, stratify=df["label"], random_state=42)
+    df_new = pd.DataFrame(new_rows)
 
-    for path, split_df in [(TRAIN_LABELS_PATH, train_df), (TEST_LABELS_PATH, test_df)]:
-        if os.path.exists(path):
-            existing = pd.read_csv(path)
-            df_combined = pd.concat([existing, split_df], ignore_index=True).drop_duplicates()
-        else:
-            df_combined = split_df
-        df_combined.to_csv(path, index=False)
+    if os.path.exists(LABELS_PATH):
+        df_existing = pd.read_csv(LABELS_PATH)
+        df = pd.concat([df_existing, df_new], ignore_index=True).drop_duplicates()
+    else:
+        df = df_new
 
-    pd.concat([train_df, test_df]).to_csv(LABELS_PATH, index=False)
+    df.to_csv(LABELS_PATH, index=False)
+    print(f"Generated {len(new_rows)} new files for label '{label}'")
 
-    print(f"✅ Generated {len(rows)} files for label '{label}' across all file types.")
-    print(f"📁 Train: {len(train_df)}, Test: {len(test_df)}")
-# -----------------------
-# 🎯 Save template + call generate_docs + retrain
-# -----------------------
-def generate_category(label, fields, num_samples):
-    os.makedirs(TEMPLATE_DIR, exist_ok=True)
-    template_path = os.path.join(TEMPLATE_DIR, f"{label}.json")
-
-    # Normalize fields into field objects if they’re just strings
-    normalized_fields = [
-        f if isinstance(f, dict) else {"label": f.replace("_", " ").title(), "key": f.lower().replace(" ", "_")}
-        for f in fields
-    ]
-
-    # Extract keys already in field list
-    existing_keys = {field["key"] for field in normalized_fields}
-
-    # Build default layout if none exists
-    layout = "\n".join([f"{field['label']}: {{{field['key']}}}" for field in normalized_fields])
-
-    # Ensure all keys in layout are in fields
-    keys_in_layout = set()
-    start = 0
-    while True:
-        start = layout.find("{", start)
-        if start == -1:
-            break
-        end = layout.find("}", start)
-        if end == -1:
-            break
-        key = layout[start+1:end]
-        keys_in_layout.add(key)
-        start = end + 1
-
-    for key in keys_in_layout - existing_keys:
-        normalized_fields.append({
-            "label": key.replace("_", " ").title(),
-            "key": key
-        })
-
-    # Save as structured JSON template
-    template = {
-        "fields": normalized_fields,
-        "layout": layout
-    }
-
-    with open(template_path, "w") as f:
-        json.dump(template, f, indent=2)
-
-    print(f"📝 Template saved to {template_path}")
-
-    if num_samples > 0:
-        generate_docs(label, num_samples)
-
-
-# -----------------------
-# 🛠️ CLI Entry Point
-# -----------------------
+# Command-line interface
 if __name__ == "__main__":
-    import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--label", required=True, help="Label to generate")
-    parser.add_argument("--fields", required=True, help="Comma-separated fields (e.g. Name,Amount,Date)")
-    parser.add_argument("--num", type=int, default=5, help="Number of synthetic samples")
+    parser.add_argument("--num", type=int, default=DEFAULT_NUM, help="Number of samples to generate")
     args = parser.parse_args()
 
-    field_list = [f.strip() for f in args.fields.split(",") if f.strip()]
-    generate_category(args.label, field_list, args.num)
+    generate_docs(args.label, args.num)

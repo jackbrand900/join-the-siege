@@ -1,27 +1,30 @@
 FROM python:3.10-slim
 
-# Install system packages
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
+    tesseract-ocr \
     poppler-utils \
     libglib2.0-0 \
     libsm6 \
     libxext6 \
     libxrender1 \
-    tesseract-ocr \
- && rm -rf /var/lib/apt/lists/*
+    && apt-get clean
 
 # Set working directory
 WORKDIR /app
 
-# Copy dependencies
+# Copy requirements and install Python packages
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy all app files
+# Copy app code
 COPY . .
 
-# Expose the port your app runs on
+# Make sure synthetic directory exists
+RUN mkdir -p files/synthetic
+
+# Expose the port your app listens on
 EXPOSE 5050
 
-# Start the app with gunicorn
+# Start with Gunicorn
 CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5050", "src.app:app"]

@@ -1,9 +1,0 @@
-{
-  "fields": [
-    { "label": "Name", "key": "name" },
-    { "label": "Employee ID", "key": "employee_id" },
-    { "label": "Salary", "key": "salary" },
-    { "label": "Pay Date", "key": "pay_date" }
-  ],
-  "layout": "Document Type: PAYSLIP\nName: {name}\nEmployee ID: {employee_id}\nSalary: {salary}\nPay Date: {pay_date}"
-}

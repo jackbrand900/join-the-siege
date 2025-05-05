@@ -1,53 +1,56 @@
 import os
 import pytesseract
+import pandas as pd
 from PIL import Image
 import fitz  # PyMuPDF
 import docx
 import openpyxl
 from PyPDF2 import PdfReader
 
+# Main text extraction dispatcher based on file extension
 def extract_text(path: str) -> str:
     ext = os.path.splitext(path)[1].lower()
 
     if ext == ".pdf":
-        reader = PdfReader(path)
-        return "\n".join(page.extract_text() or "" for page in reader.pages)
-
+        return extract_from_pdf(path)
     elif ext in [".jpg", ".jpeg", ".png"]:
-        return pytesseract.image_to_string(Image.open(path))
-
+        return extract_from_image(path)
     elif ext == ".docx":
-        doc = docx.Document(path)
-        return "\n".join(p.text for p in doc.paragraphs if p.text.strip())
-
+        return extract_from_docx(path)
     elif ext == ".xlsx":
-        try:
-            df = pd.read_excel(path, sheet_name=None)
-            return "\n".join(df[sheet].to_string(index=False) for sheet in df)
-        except Exception as e:
-            return f"Error reading Excel file: {e}"
-
+        return extract_from_xlsx(path)
     else:
         return ""
 
+# Extract text from PDF using PyMuPDF or PyPDF2 fallback
 def extract_from_pdf(path: str) -> str:
-    doc = fitz.open(path)
-    return "\n".join(page.get_text() for page in doc)
+    try:
+        reader = PdfReader(path)
+        return "\n".join(page.extract_text() or "" for page in reader.pages)
+    except Exception:
+        doc = fitz.open(path)
+        return "\n".join(page.get_text() for page in doc)
 
+# Extract text from image using OCR
 def extract_from_image(path: str) -> str:
     img = Image.open(path)
     return pytesseract.image_to_string(img)
 
+# Extract text from DOCX file
 def extract_from_docx(path: str) -> str:
     doc = docx.Document(path)
-    return "\n".join([p.text for p in doc.paragraphs])
+    return "\n".join(p.text for p in doc.paragraphs if p.text.strip())
 
+# Extract text from XLSX file
 def extract_from_xlsx(path: str) -> str:
-    wb = openpyxl.load_workbook(path, data_only=True)
-    text = []
-    for sheet in wb.worksheets:
-        for row in sheet.iter_rows(values_only=True):
-            line = " ".join([str(cell) for cell in row if cell])
-            if line.strip():
-                text.append(line)
-    return "\n".join(text)
+    try:
+        wb = openpyxl.load_workbook(path, data_only=True)
+        text = []
+        for sheet in wb.worksheets:
+            for row in sheet.iter_rows(values_only=True):
+                line = " ".join(str(cell) for cell in row if cell)
+                if line.strip():
+                    text.append(line)
+        return "\n".join(text)
+    except Exception as e:
+        return f"Error reading Excel file: {e}"
