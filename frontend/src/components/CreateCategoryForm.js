@@ -171,6 +171,7 @@ export default function CreateCategoryForm({ onCategoryCreated }) {
           value={numFiles}
           onChange={(e) => setNumFiles(e.target.value)}
           min={1}
+          max={10}
           style={{
             display: "block",
             width: "100%",
