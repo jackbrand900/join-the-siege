@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify, send_from_directory
 from scripts import generate_synthetic_docs
 import scripts.add_category as ac
-from scripts.add_category import add_category
 from src.classifier import classify_file
 import logging
 import os
@@ -9,6 +8,7 @@ import pandas as pd
 from flask_cors import CORS
 from werkzeug.datastructures import FileStorage
 from time import sleep
+from flask import Flask, send_from_directory
 
 # Flask app setup
 app = Flask(__name__)
@@ -22,6 +22,16 @@ BASE_DIRS = ["files", "files/synthetic"]
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+app = Flask(__name__, static_folder="../frontend/dist", static_url_path="/")
+
+@app.route("/")
+def serve_index():
+    return send_from_directory(app.static_folder, "index.html")
+
+@app.route("/<path:path>")
+def serve_static_file(path):
+    return send_from_directory(app.static_folder, path)
 
 def allowed_file(filename):
     # Check if file has an allowed extension
