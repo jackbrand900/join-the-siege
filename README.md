@@ -1,5 +1,143 @@
 # Heron Coding Challenge - File Classifier
 
+[Link to application](https://jackbrand900.github.io/frontend-repo/)
+
+## Overview
+
+This project enhances a document classification system to support:
+
+- Poorly named or inconsistently labeled files  
+- A wide range of document formats  
+- Scalability to new industries and use cases  
+- Robust classification at larger volumes
+
+It includes a content-based classifier powered by a large language model (LLM), a synthetic data generator for category prototyping, a Dockerized backend deployed via Render, and a frontend hosted on GitHub Pages.
+
+---
+
+## How the Classifier Works
+
+The system first extracts text from uploaded files depending on their type:
+
+- **PDFs**: `PyPDF2`
+- **Images** (JPEG, PNG): OCR via `pytesseract`
+- **Word documents**: `python-docx`
+- **Excel sheets**: `openpyxl`
+
+Initially, I used a linear regression model that classified based on vectorized file names and content. However, as more categories and synthetic data were added, its performance degraded. I replaced this with an LLM-based classifier using the Together API, which proved more scalable and accurate—especially since it doesn't require retraining when new categories are added.
+
+The LLM (Mistral) is prompted with:
+
+```
+You are an AI assistant that classifies documents into one of the following categories: <category_1>, <category_2>, ...
+
+Respond with only one word — the exact label. Do not explain your answer.
+
+Document content:
+<first 4000 characters of file text>
+
+What is the category?
+```
+
+This content-only, dynamically generated prompt enables the system to adapt to new categories without modification to the underlying classifier.
+
+To support prototyping and low-data environments, I built a **synthetic document generator**. It can create variable numbers of synthetic documents in multiple formats, with randomized fields to mimic real-world variation. These documents are saved in a `templates/` directory for reuse.
+
+---
+
+## How to Use the Classifier
+
+The app can be used at [(https://jackbrand900.github.io/frontend-repo/)](https://jackbrand900.github.io/frontend-repo/)
+
+### Run the app locally
+
+```bash
+docker-compose up --build
+```
+
+Once running, the backend is available at:
+
+```
+http://localhost:5050
+```
+
+Set your API key in a `.env` file:
+
+```
+TOGETHER_API_KEY=your_api_key_here
+```
+
+### Example classification request:
+
+```bash
+curl -X POST http://localhost:5050/classify_file \
+  -F "file=@files/invoice_1.pdf" \
+  -F "method=llm"
+```
+
+You should receive a JSON response with the predicted label.
+
+### Frontend
+
+The UI has two parts:
+- A **classifier panel** for uploading or selecting a file
+- A **category creation panel** for defining new categories and generating synthetic examples
+
+This frontend is hosted via GitHub Pages and interacts directly with the backend API.
+
+---
+
+## Part 1: Enhancing the Classifier
+
+### Limitations of the Original System
+
+The original filename-based approach failed in real-world cases:
+- Typos (e.g., `drivrs-licence.jpg`)
+- Inconsistent naming (e.g., "bill" vs. "invoice")
+- Manual keyword mapping for each new category
+
+Maintaining these mappings was not scalable and required redeployment for each change.
+
+Additionally, only PDFs and JPEGs were supported. I expanded this to include DOCX, XLSX, and images, using format-specific Python libraries to extract text in a modular way.
+
+Finally, the linear model couldn't scale. As synthetic data increased, performance dropped due to overfitting and class imbalance. Retraining became cumbersome, and the model lost generalization. Switching to an LLM removed these bottlenecks and simplified the pipeline.
+
+---
+
+## Part 2: Productionising the Classifier
+
+To prepare the system for production, I:
+
+- Implemented **CI/CD with GitHub Actions** to run tests and deploy on every commit  
+- Wrote **unit tests** for file parsing, classification logic, and edge cases  
+- Deployed the backend on **Render** and the frontend on **GitHub Pages**  
+- Used **Docker** to ensure environment consistency across deployments  
+
+For larger-scale use, I would:
+- Support **batch classification** of uploaded files
+- Introduce **cloud storage and queue-based processing** (e.g., Kafka)
+- Add **database-backed classification logs** for traceability
+
+---
+
+## Future Improvements
+
+If time allowed, I would expand the system with:
+
+- **Active learning loops** to prompt user labeling for low-confidence predictions  
+- **Preprocessing pipelines** to standardize formats like dates and currencies  
+- **Attention-based models** to pick up layout features (e.g., headers, logos)  
+- **Model versioning and rollback** to automatically revert if performance drops  
+
+---
+
+## Final Thoughts
+
+This project revealed how nuanced document classification is when applied in real-world settings. From text extraction to scaling infrastructure, I enjoyed building a system that’s flexible, extensible, and production-aware.
+
+Thanks for the opportunity to work on this challenge. I would be excited to explore these ideas further as part of the team at Heron.
+
+---
 ## Overview
 
 At Heron, we’re using AI to automate document processing workflows in financial services and beyond. Each day, we handle over 100,000 documents that need to be quickly identified and categorised before we can kick off the automations.
