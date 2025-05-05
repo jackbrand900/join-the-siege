@@ -47,7 +47,7 @@ This content-only, dynamically generated prompt enables the system to adapt to n
 
 Note: because I am on the free-tier of Together.ai, rate-limiting can occasionally result in "unknown" being predicted for a file. If this occurs, please wait a bit and try again. If this were a production environment, a higher limit / local LLM would be used.
 
-To support prototyping and low-data environments, I built a **synthetic document generator**. It can create variable numbers of synthetic documents in multiple formats, with randomized subsets of fields selected to mimic real-world variation.
+To support prototyping and low-data environments, I built a **synthetic document generator**. It can create variable numbers of synthetic documents (up to 10 at a time) in multiple formats, with randomized subsets of fields selected to mimic real-world variation.
 
 ### Why This Matters
 
