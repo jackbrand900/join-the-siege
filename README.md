@@ -43,7 +43,9 @@ Document content:
 What is the category?
 ```
 
-This content-only, dynamically generated prompt enables the system to adapt to new categories without modification to the underlying classifier. Note: because I am on the free-tier of Together.ai, rate-limiting can occasionally result in "unknown" being predicted for a file. If this occurs, please wait a bit and try again. If this were a production environment, a higher limit / local LLM would be used.
+This content-only, dynamically generated prompt enables the system to adapt to new categories without modification to the underlying classifier. 
+
+Note: because I am on the free-tier of Together.ai, rate-limiting can occasionally result in "unknown" being predicted for a file. If this occurs, please wait a bit and try again. If this were a production environment, a higher limit / local LLM would be used.
 
 To support prototyping and low-data environments, I built a **synthetic document generator**. It can create variable numbers of synthetic documents in multiple formats, with randomized subsets of fields selected to mimic real-world variation.
 
