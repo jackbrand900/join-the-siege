@@ -7,9 +7,6 @@ export default function FileClassifier({ files }) {
   const [selectedPath, setSelectedPath] = useState("");
   const [uploadedFile, setUploadedFile] = useState(null);
   const [result, setResult] = useState(null);
-  const [allResults, setAllResults] = useState([]);
-  const [count, setCount] = useState(0);
-  const [accuracy, setAccuracy] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [dots, setDots] = useState("");
@@ -30,10 +27,7 @@ export default function FileClassifier({ files }) {
   const handleClassify = async () => {
     setLoading(true);
     setResult(null);
-    setAllResults([]);
     setError("");
-    setAccuracy(null);
-    setCount(0);
 
     try {
       let res;
@@ -96,11 +90,15 @@ export default function FileClassifier({ files }) {
           className="form-input"
         >
           <option value="">-- Choose a file --</option>
-          {files.map((file, idx) => (
-            <option key={idx} value={file.relative_path}>
-              {file.filename}
-            </option>
-          ))}
+          {Array.isArray(files) && files.length > 0 ? (
+            files.map((file, idx) => (
+              <option key={idx} value={file.relative_path}>
+                {file.filename}
+              </option>
+            ))
+          ) : (
+            <option>No files available</option>
+          )}
         </select>
       </div>
 
