@@ -9,9 +9,9 @@ from flask_cors import CORS
 from werkzeug.datastructures import FileStorage
 from time import sleep
 
-# Flask app setup to serve React/Vite frontend
-app = Flask(__name__, static_folder="../frontend/build", static_url_path="/")
-CORS(app)
+app = Flask(__name__)
+
+CORS(app, origins=["https://jackbrand900.github.io"], supports_credentials=True)
 
 # Constants
 FILES_ROOT = "files"
