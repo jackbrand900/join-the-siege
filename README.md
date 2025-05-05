@@ -41,13 +41,15 @@ What is the category?
 
 This content-only, dynamically generated prompt enables the system to adapt to new categories without modification to the underlying classifier.
 
-To support prototyping and low-data environments, I built a **synthetic document generator**. It can create variable numbers of synthetic documents in multiple formats, with randomized fields to mimic real-world variation. These documents are saved in a `templates/` directory for reuse.
+To support prototyping and low-data environments, I built a **synthetic document generator**. It can create variable numbers of synthetic documents in multiple formats, with randomized subsets of fields selected to mimic real-world variation. These templates are saved in a `templates/` directory for reuse.
 
 ---
 
 ## How to Use the Classifier
 
 The app can be used at [(https://jackbrand900.github.io/frontend-repo/)](https://jackbrand900.github.io/frontend-repo/)
+
+The app can also be run locally through Docker.
 
 ### Run the app locally
 
@@ -100,7 +102,7 @@ Maintaining these mappings was not scalable and required redeployment for each c
 
 Additionally, only PDFs and JPEGs were supported. I expanded this to include DOCX, XLSX, and images, using format-specific Python libraries to extract text in a modular way.
 
-Finally, the linear model couldn't scale. As synthetic data increased, performance dropped due to overfitting and class imbalance. Retraining became cumbersome, and the model lost generalization. Switching to an LLM removed these bottlenecks and simplified the pipeline.
+Finally, the ML model didn't scale well for this use case. As synthetic data increased, performance dropped due to overfitting and class imbalance. Retraining became cumbersome, and the model lost generalization. Switching to an LLM removed these bottlenecks and simplified the pipeline.
 
 ---
 
