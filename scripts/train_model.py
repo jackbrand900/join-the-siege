@@ -10,7 +10,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 from sklearn.compose import ColumnTransformer
 
-# Add src/ to path so we can import extract_text
+# Add src/ to path to import extract_text
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from src.extractor import extract_text
 

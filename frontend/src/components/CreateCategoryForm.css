@@ -1,0 +1,95 @@
+.form-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem;
+    border-radius: 10px;
+    background-color: #fff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    font-family: sans-serif;
+  }
+  
+  .form-title {
+    margin-bottom: 1.5rem;
+    color: #333;
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-label {
+    font-weight: bold;
+  }
+  
+  .form-input,
+  .form-number {
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  
+  .form-input-error {
+    border-color: #f44336;
+  }
+  
+  .error-text {
+    color: #f44336;
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+  }
+  
+  .field-row {
+    display: flex;
+    margin-top: 0.5rem;
+  }
+  
+  .remove-btn {
+    margin-left: 0.5rem;
+    padding: 0.5rem;
+    background: #f44336;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .add-field-btn {
+    margin-top: 0.75rem;
+    background: #eee;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .submit-btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    background-color: #2196f3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .submit-btn:disabled {
+    cursor: not-allowed;
+  }
+  
+  .status-box {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f9f9f9;
+    border-radius: 6px;
+  }
+  
+  .status-success {
+    border-left: 4px solid #4caf50;
+  }
+  
+  .status-error {
+    border-left: 4px solid red;
+  }
+  

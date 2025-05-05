@@ -20,7 +20,7 @@ ALLOWED_EXTENSIONS = ["pdf", "jpg", "png", "docx", "xlsx"]
 # Initialize Faker
 fake = Faker()
 
-# Generate realistic dummy values for various fields
+# Generate realistic dummy values for various fields (would make this modular for production, hardcoding options for now)
 def fake_value(field):
     field = field.lower()
     if "name" in field:

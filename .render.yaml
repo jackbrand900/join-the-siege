@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: fullstack-app
+    runtime: python
+    buildCommand: |
+      cd frontend && npm install && npm run build
+      cd .. && pip install -r requirements.txt
+    startCommand: gunicorn src.app:app
+    plan: free

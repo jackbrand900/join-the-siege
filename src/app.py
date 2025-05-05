@@ -9,8 +9,8 @@ from flask_cors import CORS
 from werkzeug.datastructures import FileStorage
 from time import sleep
 
+# Setting up Flask server
 app = Flask(__name__)
-
 CORS(app, origins=["https://jackbrand900.github.io"], supports_credentials=True)
 
 # Constants
@@ -21,19 +21,6 @@ BASE_DIRS = ["files", "files/synthetic"]
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-
-# Serve frontend
-@app.route("/")
-def serve_index():
-    return send_from_directory(app.static_folder, "index.html")
-
-@app.route("/<path:path>")
-def serve_static_file(path):
-    file_path = os.path.join(app.static_folder, path)
-    if os.path.exists(file_path):
-        return send_from_directory(app.static_folder, path)
-    else:
-        return send_from_directory(app.static_folder, "index.html")
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -113,68 +100,6 @@ def generate_examples_route():
     except Exception as e:
         logger.error(f"Example generation error: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
-
-@app.route("/classify_all_files", methods=["POST"])
-def classify_all_files():
-    method = request.get_json(force=True).get("method", "filename")
-    if method not in {"filename", "model", "llm"}:
-        return jsonify({"error": f"Unsupported method: {method}"}), 400
-
-    results = []
-    correct = 0
-    total = 0
-    batch_size = 5
-
-    label_df = pd.concat([
-        pd.read_csv(os.path.join(FILES_ROOT, "train_labels.csv")),
-        pd.read_csv(os.path.join(FILES_ROOT, "test_labels.csv"))
-    ])
-    label_map = dict(zip(label_df["filename"], label_df["label"]))
-
-    all_files = []
-    for root, _, files in os.walk(FILES_ROOT):
-        for fname in sorted(files):
-            if allowed_file(fname):
-                all_files.append(os.path.join(root, fname))
-
-    for i in range(0, len(all_files), batch_size):
-        batch = all_files[i:i + batch_size]
-        for path in batch:
-            fname = os.path.relpath(path, FILES_ROOT)
-            try:
-                with open(path, "rb") as f:
-                    file = FileStorage(stream=f, filename=os.path.basename(path))
-                    label_result = classify_file(file, method=method)
-                    predicted = label_result["label"]
-                    ground_truth = label_map.get(os.path.basename(path))
-
-                    item = {
-                        "filename": fname,
-                        "label": predicted,
-                        "expected": ground_truth
-                    }
-
-                    if ground_truth:
-                        if predicted == ground_truth:
-                            correct += 1
-                        total += 1
-
-                    results.append(item)
-            except Exception as e:
-                results.append({
-                    "filename": fname,
-                    "error": str(e)
-                })
-
-        sleep(1.2)  # delay to respect API rate limits
-
-    accuracy = round((correct / total) * 100, 2) if total else None
-    return jsonify({
-        "results": results,
-        "total": total,
-        "correct": correct,
-        "accuracy_percent": accuracy
-    }), 200
 
 @app.route("/list_categories", methods=["GET"])
 def list_categories():

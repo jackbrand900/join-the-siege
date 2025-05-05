@@ -9,6 +9,8 @@ TEMPLATE_DIR = os.path.join("templates")
 def save_template(label: str, fields: list[str]):
     os.makedirs(TEMPLATE_DIR, exist_ok=True)
     template_path = os.path.join(TEMPLATE_DIR, f"{label}.json")
+    
+    # standardized template json with fields and layout
     normalized_fields = [
         {"label": f.replace("_", " ").title(), "key": f.lower().replace(" ", "_")}
         for f in fields

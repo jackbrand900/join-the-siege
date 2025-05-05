@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "../styles/components.css";
+import "./FileClassifier.css";
 
 const API = process.env.REACT_APP_API_URL;
 
@@ -66,18 +66,8 @@ export default function FileClassifier({ files }) {
   };
 
   return (
-    <div
-      style={{
-        maxWidth: "600px",
-        margin: "0 auto",
-        padding: "2rem",
-        borderRadius: "10px",
-        backgroundColor: "#fff",
-        boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
-        fontFamily: "sans-serif",
-      }}
-    >
-      <h2 style={{ marginBottom: "1.5rem", color: "#333" }}>📂 File Classifier</h2>
+    <div className="form-container">
+      <h2 className="form-title">📂 File Classifier</h2>
 
       <div className="form-group">
         <label className="form-label">Select a file from list:</label>
@@ -111,20 +101,17 @@ export default function FileClassifier({ files }) {
         />
       </div>
 
-      <div className="form-group" style={{ display: "flex", gap: "1rem", flexDirection: "column" }}>
-        <div style={{ display: "flex", gap: "1rem" }}>
-          <button
-            onClick={handleClassify}
-            disabled={loading}
-            className="form-button"
-          >
-            {loading ? "Classifying..." : "Classify File"}
-          </button>
-        </div>
+      <div className="form-group form-actions">
+        <button
+          onClick={handleClassify}
+          disabled={loading}
+          className="form-button"
+        >
+          {loading ? "Classifying..." : "Classify File"}
+        </button>
       </div>
 
       {loading && <div className="loading-text">⏳ Classifying{dots}</div>}
-
       {error && <div className="error-text">{error}</div>}
 
       {!loading && result && (
