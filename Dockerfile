@@ -27,4 +27,4 @@ RUN mkdir -p files/synthetic
 EXPOSE 5050
 
 # Start with Gunicorn
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5050", "src.app:app"]
+CMD ["gunicorn", "-w", "1", "-b", "0.0.0.0:5050", "src.app:app"]

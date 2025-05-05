@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../styles/components.css";
 
-const API = process.env.REACT_APP_API_URL || "http://localhost:5050";
+const API = process.env.REACT_APP_API_URL;
 
 export default function FileClassifier({ files }) {
   const [selectedPath, setSelectedPath] = useState("");
