@@ -17,6 +17,10 @@ It includes a content-based classifier powered by a large language model (LLM), 
 
 ## How the Classifier Works
 
+Overview of classification:
+
+![Classifier](./arch.png)
+
 The system first extracts text from uploaded files depending on their type:
 
 - **PDFs**: `PyPDF2`
@@ -41,7 +45,15 @@ What is the category?
 
 This content-only, dynamically generated prompt enables the system to adapt to new categories without modification to the underlying classifier.
 
-To support prototyping and low-data environments, I built a **synthetic document generator**. It can create variable numbers of synthetic documents in multiple formats, with randomized subsets of fields selected to mimic real-world variation. These templates are saved in a `templates/` directory for reuse.
+To support prototyping and low-data environments, I built a **synthetic document generator**. It can create variable numbers of synthetic documents in multiple formats, with randomized subsets of fields selected to mimic real-world variation.
+
+### Why This Matters
+
+- **Supports new industries**: You can instantly prototype document types for banking, insurance, HR, etc.
+- **Removes dependency on real data**: No need for manually collected examples
+- **Improves classifier robustness**: Randomized fields ensure the model doesn't overfit to a single layout or format
+
+This functionality helps the classifier remain adaptable and scalable without requiring retraining, making it suitable for dynamic or low-data environments.
 
 ---
 
