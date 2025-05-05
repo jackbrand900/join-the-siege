@@ -8,10 +8,9 @@ import pandas as pd
 from flask_cors import CORS
 from werkzeug.datastructures import FileStorage
 from time import sleep
-from flask import Flask, send_from_directory
 
-# Flask app setup
-app = Flask(__name__)
+# Flask app setup to serve React/Vite frontend
+app = Flask(__name__, static_folder="../frontend/dist", static_url_path="/")
 CORS(app)
 
 # Constants
@@ -23,23 +22,24 @@ BASE_DIRS = ["files", "files/synthetic"]
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-app = Flask(__name__, static_folder="../frontend/dist", static_url_path="/")
-
+# Serve frontend
 @app.route("/")
 def serve_index():
     return send_from_directory(app.static_folder, "index.html")
 
 @app.route("/<path:path>")
 def serve_static_file(path):
-    return send_from_directory(app.static_folder, path)
+    file_path = os.path.join(app.static_folder, path)
+    if os.path.exists(file_path):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, "index.html")
 
 def allowed_file(filename):
-    # Check if file has an allowed extension
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/classify_file', methods=['POST'])
 def classify_file_route():
-    # Classify uploaded file
     logger.debug("Received classify_file request")
     if 'file' not in request.files:
         return jsonify({"error": "No file part in the request"}), 400
@@ -61,7 +61,6 @@ def classify_file_route():
 
 @app.route("/classify_by_path", methods=["POST"])
 def classify_by_path():
-    # Classify a file given by path on the server
     data = request.get_json(force=True)
     path = data.get("path")
     method = data.get("method", "model")
@@ -79,7 +78,6 @@ def classify_by_path():
 
 @app.route("/generate_category", methods=["POST"])
 def generate_category_route():
-    # Create a new category
     data = request.get_json(force=True)
     label = data.get("label")
     num = data.get("num", 10)
@@ -102,7 +100,6 @@ def generate_category_route():
 
 @app.route("/generate_examples", methods=["POST"])
 def generate_examples_route():
-    # Generate new examples for an existing category
     data = request.get_json(force=True)
     label = data.get("label")
     num = data.get("num", 10)
@@ -181,7 +178,6 @@ def classify_all_files():
 
 @app.route("/list_categories", methods=["GET"])
 def list_categories():
-    # List all available templates
     try:
         os.makedirs("templates", exist_ok=True)
         categories = [
@@ -196,7 +192,6 @@ def list_categories():
 
 @app.route("/retrain", methods=["POST"])
 def retrain_model():
-    # Retrain the document classification model
     try:
         logger.info("Retraining model...")
         result = os.system("python scripts/train_model.py")
@@ -209,7 +204,6 @@ def retrain_model():
 
 @app.route("/list_files", methods=["GET"])
 def list_files():
-    # List all files including synthetic
     try:
         files = []
         for root, _, filenames in os.walk(FILES_ROOT):
@@ -225,6 +219,6 @@ def list_files():
         logger.error(f"Failed to list files: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
-# Run the Flask server
+# Run the Flask server locally
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5050)
