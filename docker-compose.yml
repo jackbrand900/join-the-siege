@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  backend:
+    image: heron-backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5050:5050"
+    volumes:
+      - ./templates:/app/templates
+      - ./files:/app/files
+      - ./model:/app/model
+    environment:
+      - PYTHONUNBUFFERED=1
+    env_file:
+    - .env

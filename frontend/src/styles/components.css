@@ -1,0 +1,71 @@
+.component-card {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  border-radius: 10px;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  font-family: sans-serif;
+}
+
+.component-title {
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.form-button {
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.form-button:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.result-card {
+  padding: 1rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  border-left: 5px solid #4caf50;
+}
+
+.result-title {
+  margin-top: 0;
+}
+
+.result-text {
+  margin: 0.5rem 0;
+}
+
+.loading-text {
+  margin-bottom: 1rem;
+  color: #777;
+}
+
+.error-text {
+  margin-bottom: 1rem;
+  color: red;
+} 
