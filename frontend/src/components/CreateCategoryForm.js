@@ -116,14 +116,18 @@ export default function CreateCategoryForm({ onCategoryCreated }) {
       <div className="form-group">
         <label className="form-label">Number of synthetic files to generate:</label>
         <input
-          type="number"
-          value={numFiles}
-          onChange={(e) => setNumFiles(Math.min(Number(e.target.value), 10))}
-          min={1}
-          max={10}
-          className="form-number"
+            type="number"
+            value={numFiles}
+            onChange={(e) => setNumFiles(Math.min(Number(e.target.value), 10))}
+            min={1}
+            max={10}
+            className="form-number"
         />
+        <p style={{ fontSize: "0.875rem", color: "#555", marginTop: "0.25rem" }}>
+           Note: You can generate up to 10 files per category.
+        </p>
       </div>
+
 
       {/* Submit button */}
       <button

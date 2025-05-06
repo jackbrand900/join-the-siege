@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./FileClassifier.css";
 
 const API = process.env.REACT_APP_API_URL;
@@ -10,6 +10,7 @@ export default function FileClassifier({ files }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [dots, setDots] = useState("");
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (!loading) return;
@@ -19,9 +20,20 @@ export default function FileClassifier({ files }) {
     return () => clearInterval(interval);
   }, [loading]);
 
+  useEffect(() => {
+    if (!uploadedFile && fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }, [uploadedFile]);
+
   const handleFileUpload = (e) => {
     setUploadedFile(e.target.files[0]);
     setSelectedPath("");
+  };
+
+  const handleDropdownChange = (e) => {
+    setSelectedPath(e.target.value);
+    setUploadedFile(null);
   };
 
   const handleClassify = async () => {
@@ -73,10 +85,7 @@ export default function FileClassifier({ files }) {
         <label className="form-label">Select a file from list:</label>
         <select
           value={selectedPath}
-          onChange={(e) => {
-            setSelectedPath(e.target.value);
-            setUploadedFile(null);
-          }}
+          onChange={handleDropdownChange}
           className="form-input"
         >
           <option value="">-- Choose a file --</option>
@@ -97,6 +106,7 @@ export default function FileClassifier({ files }) {
         <input
           type="file"
           onChange={handleFileUpload}
+          ref={fileInputRef}
           className="form-input"
         />
       </div>
