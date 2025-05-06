@@ -230,7 +230,7 @@ Maintaining these mappings was not scalable and required redeployment for each c
 
 Additionally, only PDFs and JPEGs were supported. I expanded this to include DOCX, XLSX, and images, using format-specific Python libraries to extract text in a modular way.
 
-Finally, the ML model didn't scale well for this use case. As synthetic data increased, performance dropped due to overfitting and class imbalance. Retraining became cumbersome, and the model lost generalization. Switching to an LLM removed these bottlenecks and simplified the pipeline.
+Finally, the ML model didn't scale well for this use case. As synthetic data increased, performance dropped due to overfitting and class imbalance. Retraining became cumbersome, and the model lost generalization. Switching to an LLM removed these bottlenecks and simplified the pipeline. I left the ML model code in the codebase if you want to look at it, but it is unused in the application currently.
 
 ---
 
