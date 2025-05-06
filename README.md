@@ -93,6 +93,62 @@ curl -X POST http://localhost:5050/classify_file \
 
 You should receive a JSON response with the predicted label.
 
+## Running the UI Locally
+
+To run the React frontend on your machine:
+
+1. Navigate to the frontend directory:
+
+   ```bash
+   cd frontend
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Create a `.env` file (if one doesn’t exist) and add:
+
+   ```
+   REACT_APP_API_URL=http://localhost:5050
+   ```
+
+   This ensures the frontend knows where to send API requests.
+
+4. Start the development server:
+
+   ```bash
+   npm start
+   ```
+
+   The app will be available at `http://localhost:3000`.
+
+---
+
+## Enabling CORS for the Local Frontend
+
+To allow the frontend at `localhost:3000` to communicate with the Flask backend at `localhost:5050`, enable CORS in your Flask app:
+
+1. Install `flask-cors`:
+
+   ```bash
+   pip install flask-cors
+   ```
+
+2. In your `src/app.py`, add:
+
+   ```python
+   from flask import Flask
+   from flask_cors import CORS
+
+   app = Flask(__name__)
+   CORS(app, origins=["http://localhost:3000"])
+   ```
+
+This ensures the browser doesn’t block requests between the frontend and backend during local development.
+
 ### Frontend
 
 The UI has two parts:
