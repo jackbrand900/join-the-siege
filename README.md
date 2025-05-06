@@ -108,7 +108,7 @@ This frontend is hosted via GitHub Pages and interacts directly with the backend
 ### Limitations of the Original System
 
 The original filename-based approach failed in real-world cases:
-- Typos (e.g., `drivrs-licence.jpg`)
+- Typos (e.g., `drivrs-licnce.jpg`)
 - Inconsistent naming (e.g., "bill" vs. "invoice")
 - Manual keyword mapping for each new category
 
