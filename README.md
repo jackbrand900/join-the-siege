@@ -105,7 +105,7 @@ POST /generate_category
 
 ### Description
 
-Creates a new category with the specified label and fields, and generates synthetic documents for it. These synthetic documents are saved to the system and used in classification and training.
+Creates a new category with the specified label and fields, and generates synthetic documents for it. These synthetic documents are saved to the system.
 
 ### Request Body (JSON)
 
@@ -140,7 +140,6 @@ curl -X POST http://localhost:5050/generate_category \
   "status": "success",
   "label": "pay_stub",
   "samples_generated": 5,
-  "retrained": true
 }
 ```
 
