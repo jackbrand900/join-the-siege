@@ -93,6 +93,63 @@ curl -X POST http://localhost:5050/classify_file \
 
 You should receive a JSON response with the predicted label.
 
+## Creating a New Document Category
+
+You can create a new document category and generate synthetic examples using the `/generate_category` endpoint.
+
+### Endpoint
+
+```
+POST /generate_category
+```
+
+### Description
+
+Creates a new category with the specified label and fields, and generates synthetic documents for it. These synthetic documents are saved to the system and used in classification and training.
+
+### Request Body (JSON)
+
+```json
+{
+  "label": "pay_stub",
+  "fields": ["employee_name", "net_income", "pay_period"],
+  "num": 5
+}
+```
+
+- `label` *(string, required)*: The category name (e.g., `pay_stub`)
+- `fields` *(list of strings, required)*: Field names to include in the synthetic documents
+- `num` *(integer, optional)*: Number of synthetic documents to generate (default: 10, max: 10)
+
+### Example Request (cURL)
+
+```bash
+curl -X POST http://localhost:5050/generate_category \
+  -H "Content-Type: application/json" \
+  -d '{
+        "label": "pay_stub",
+        "fields": ["employee_name", "net_income", "pay_period"],
+        "num": 5
+      }'
+```
+
+### Example Response
+
+```json
+{
+  "status": "success",
+  "label": "pay_stub",
+  "samples_generated": 5,
+  "retrained": true
+}
+```
+
+### Error Responses
+
+- `400 Bad Request` – If `label` or `fields` are missing
+- `500 Internal Server Error` – If generation fails
+
+
 ## Running the UI Locally
 
 To run the React frontend on your machine:
