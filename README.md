@@ -149,6 +149,8 @@ To allow the frontend at `localhost:3000` to communicate with the Flask backend 
 
 This ensures the browser doesn’t block requests between the frontend and backend during local development.
 
+---
+
 ### Frontend
 
 The UI has two parts:
