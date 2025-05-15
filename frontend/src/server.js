@@ -9,7 +9,8 @@ app.use(express.static(path.join(__dirname, 'build')));
 
 // Proxy API requests to Flask backend
 app.use('/api', createProxyMiddleware({
-  target: 'https://join-the-siege-nwh2.onrender.com',
+  // target: 'https://join-the-siege-nwh2.onrender.com',
+  target: 'http://localhost:5050',
   changeOrigin: true,
   pathRewrite: {
     '^/api': '', // Removes the `/api` prefix from requests
