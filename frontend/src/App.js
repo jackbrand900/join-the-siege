@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import FileClassifier from "./components/FileClassifier";
 import CreateCategoryForm from "./components/CreateCategoryForm";
 
-const API = process.env.REACT_APP_API_URL;
+// const API = process.env.REACT_APP_API_URL;
+const API = "http://localhost:5050"; // For development purposes only
 
 export default function App() {
   const [files, setFiles] = useState([]);
